@@ -1,12 +1,13 @@
 clc; clf; clear;
 
-center = 115;
+center = 110;
 scale = 0.114;
 data = double(readSPE(['300_groove_neon_spectra/', num2str(center), '.spe']));
 plot(scale*(1:512), data);
 xlim([scale, scale*512]);
 
-known_peaks = [650.652, 653.288, 659.895, 667.828, 671.704, 692.947, 703.2410];
+known_peaks = [621.728, 626.650, 630.479, 633.443, 638.299, 640.225, ...
+    650.652, 653.288, 659.895, 667.828, 671.704];
 
 [peaks, locs] = findpeaks(data, 'MinPeakHeight', 1200);
 hold on

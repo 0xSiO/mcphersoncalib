@@ -4,11 +4,13 @@ function mcphersoncalib(grooves, center)
 %   center: approx. center wavelength from spectrometer dial.
 
 % 512 pixels in SPE snapshot.
-%   300 groove: 1 pixel = 0.114 nm, actual center shifted left 8.60 nm
+
+% 300 groove: 1 pixel = 0.114 nm, actual center shifted left 8.60 nm
 %     this is based on several manual fits that gave offsets of:
 %     7.93, 6.51, 8.13, 10.63, 10.31, 9.4, 7.83, 7.29, 8.14, 7.82, 9.31, 8.68, 7.93, 7.93, 8.74, 8.85
 multiplier_300 = 0.114;
 offset_300 = 8.60;
+
 %   TODO: confirm this! 50 groove: 1 pixel = 0.69981 nm
 %   TODO: other gratings
 

@@ -17,9 +17,9 @@ offset = 8.50;
 center_wavelength_approx = 1800/grooves * center - offset
 
 % Range stretches across entire snapshot.
-left_bound = center_wavelength_approx - 256 * multiplier;
-right_bound = center_wavelength_approx + 256 * multiplier;
-wavelength_range = [left_bound, right_bound];
+left_bound = center_wavelength_approx - 250 * multiplier;
+right_bound = center_wavelength_approx + 250 * multiplier;
+wavelength_range = [left_bound, right_bound]
 
 % TODO: currently some locations are missing. See NIST database for more
 % accurate data.

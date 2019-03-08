@@ -9,11 +9,11 @@ function mcphersoncalib(type, grooves, center)
 % 512 pixels in SPE snapshot, 
 %   300 groove: 1 pixel = 0.114 nm, actual center shifted left 8.36 nm
 %     (this is an average of several manual fits that gave offsets of:
-%     8.13, 10.63, 10.31, 9.4, 7.83, 7.29, 8.14, 7.82, 9.31, 8.68, 7.93, 7.93, 8.74, 8.85)
+%     6.51, 8.13, 10.63, 10.31, 9.4, 7.83, 7.29, 8.14, 7.82, 9.31, 8.68, 7.93, 7.93, 8.74, 8.85)
 %   TODO: confirm this! 50 groove: 1 pixel = 0.69981 nm
 %   TODO: other gratings
 multiplier = 0.114;
-offset = 8.64;
+offset = 8.50;
 center_wavelength_approx = 1800/grooves * center - offset
 
 % Range stretches across entire snapshot.
@@ -37,6 +37,7 @@ neon_peaks = [336.99, 341.790, 344.770, 346.658, 347.257, 352.047, 359.353, ...
 % These are locations of moderate to large peaks that are definitely 
 % resolvable by the 300 groove grating.
 neon_peaks_300 = [
+    585.249, 588.190, ...
     594.483, 597.553, 603.000, 607.434, 609.616, 614.306, 616.359, ...
     621.728, 626.650, 630.479, 633.443, 638.299, 640.225, ...
     650.652, 653.288, 659.895, 667.828, 671.704, ...

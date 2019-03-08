@@ -1,9 +1,10 @@
 clear; clc; close all;
 
-calibration_data = readSPE('calibration.SPE');
+% This uses data from the 50 groove grating
+calibration_data = double(readSPE('calibration.SPE'));
 
 % Minimum peak intensity: 600
-peak_locations = findpeaks_dumb(calibration_data, 600, 0);
+[peaks, peak_locations] = findpeaks(calibration_data, 'MinPeakHeight', 600);
 peak_values = calibration_data(peak_locations);
 
 figure(1);

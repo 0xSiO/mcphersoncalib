@@ -7,14 +7,13 @@ function mcphersoncalib(type, grooves, center)
 % configurable, currently it searches +-256 pixels.
 
 % 512 pixels in SPE snapshot, 
-%   300 groove: 1 pixel = 0.114 nm, actual center shifted left 
-%     on average of:
-%     9.4, 7.83, 7.29, 8.14, 7.82, 9.31, 8.68, 7.93, 7.93, 8.74, 8.85 nm
-%       (based on several manual tests)
-%   TODO: confirm this! 1200 groove: 1 pixel = 0.69981 nm
+%   300 groove: 1 pixel = 0.114 nm, actual center shifted left 8.36 nm
+%     (this is an average of several manual fits that gave offsets of:
+%     9.4, 7.83, 7.29, 8.14, 7.82, 9.31, 8.68, 7.93, 7.93, 8.74, 8.85)
+%   TODO: confirm this! 50 groove: 1 pixel = 0.69981 nm
 %   TODO: other gratings
 multiplier = 0.114;
-offset = 9.4;
+offset = 8.36;
 center_wavelength_approx = 1800/grooves * center - offset
 
 % Range stretches across entire snapshot.
@@ -22,6 +21,7 @@ wavelength_range = [center_wavelength_approx - 256 * multiplier, center_waveleng
 
 % TODO: currently some locations are missing. See NIST database for more
 % accurate data.
+% use setdiff(some_vec, neon_peaks) to see values not in this vector
 neon_peaks = [336.99, 341.790, 344.770, 346.658, 347.257, 352.047, 359.353, ...
               533.078, 534.109, 540.056, 585.249, 588.190, 594.483, 597.553, ...
               603.000, 607.434, 609.616, 614.306, 616.359, 621.728, 626.650, ...

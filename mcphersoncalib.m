@@ -7,13 +7,13 @@ function mcphersoncalib(type, grooves, center)
 % configurable, currently it searches +-256 pixels.
 
 % 512 pixels in SPE snapshot, 
-%   300 groove: 1 pixel = 0.114 nm, actual center shifted left 8.36 nm
-%     (this is an average of several manual fits that gave offsets of:
-%     6.51, 8.13, 10.63, 10.31, 9.4, 7.83, 7.29, 8.14, 7.82, 9.31, 8.68, 7.93, 7.93, 8.74, 8.85)
+%   300 groove: 1 pixel = 0.114 nm, actual center shifted left 8.60 nm
+%     (this is based on several manual fits that gave offsets of:
+%     7.93, 6.51, 8.13, 10.63, 10.31, 9.4, 7.83, 7.29, 8.14, 7.82, 9.31, 8.68, 7.93, 7.93, 8.74, 8.85)
 %   TODO: confirm this! 50 groove: 1 pixel = 0.69981 nm
 %   TODO: other gratings
 multiplier = 0.114;
-offset = 8.50;
+offset = 8.60;
 center_wavelength_approx = 1800/grooves * center - offset
 
 % Range stretches across entire snapshot.

@@ -1,6 +1,5 @@
-function mcphersoncalib(type, grooves, center)
+function mcphersoncalib(grooves, center)
 % mcphersoncalib: Calibrate SPE data from spectrometer.
-%   type: 'neon', 'mercury'
 %   grooves: how many grooves in the grating you're using.
 %   center: approx. center wavelength from spectrometer dial.
 

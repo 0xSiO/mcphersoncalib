@@ -9,7 +9,7 @@ function mcphersoncalib(type, grooves, center)
 % 512 pixels in SPE snapshot, 
 %   300 groove: 1 pixel = 0.114 nm, actual center shifted left 
 %     on average of:
-%     9.4, 7.83, 7.29, 8.14, 7.82, 9.31, 8.68, 7.93, 7.93, 8.74 nm
+%     9.4, 7.83, 7.29, 8.14, 7.82, 9.31, 8.68, 7.93, 7.93, 8.74, 8.85 nm
 %       (based on several manual tests)
 %   TODO: confirm this! 1200 groove: 1 pixel = 0.69981 nm
 %   TODO: other gratings

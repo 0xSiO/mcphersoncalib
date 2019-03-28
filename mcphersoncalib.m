@@ -1,4 +1,4 @@
-function mcphersoncalib(grooves, center)
+function [multiplier, center_wavelength_approx, wavelength_range, possible_peaks] = mcphersoncalib(grooves, center)
 % mcphersoncalib: Calibrate SPE data from spectrometer.
 %   grooves: how many grooves in the grating you're using.
 %   center: approx. center wavelength from spectrometer dial.
@@ -55,5 +55,5 @@ neon_peaks_300 = [
 
 peak_locations = neon_peaks_300; % change depending on grating used
               
-possible_peaks = peak_locations(peak_locations > wavelength_range(1) & peak_locations < wavelength_range(2))
+possible_peaks = peak_locations(peak_locations > wavelength_range(1) & peak_locations < wavelength_range(2));
 end

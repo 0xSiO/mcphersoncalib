@@ -25,7 +25,7 @@ center_wavelength_approx = 1800/grooves * center - offset;
 % TODO: Make this configurable
 left_bound = center_wavelength_approx - 250 * multiplier;
 right_bound = center_wavelength_approx + 250 * multiplier;
-wavelength_range = [left_bound, right_bound]
+wavelength_range = [left_bound, right_bound];
 
 % TODO: currently some locations are missing. See NIST database for more
 % accurate data.

@@ -25,7 +25,9 @@ function new_data = add_ui_components(data)
     data.lower_bound_field = uicontrol('Style', 'edit', 'Position', [455, 30, 90, 25]);
     data.adjust_fit_btn = uicontrol('Style', 'pushbutton', 'Position', [555, 30, 75, 25], ...
         'String', 'Adjust Fit', 'Callback', @adjust_fit);
-    data.status_msg = uicontrol('Style', 'text', 'Position', [10, 0, 1000, 25], ...
+    data.try_fit_btn = uicontrol('Style', 'pushbutton', 'Position', [640, 30, 75, 25], ...
+        'String', 'Try Fit', 'Enable', 'off', 'Callback', @try_fit);
+    data.status_msg = uicontrol('Style', 'text', 'Position', [10, 5, 1100, 25], ...
         'HorizontalAlignment', 'left', 'String', 'Click "Load Spectrum" to begin.');
     data.axes = axes('Units', 'pixels', 'Position', [50, 120, 1130, 660]);
     new_data = data;
@@ -62,15 +64,17 @@ function plot_data(x, data)
     hold on
 end
 
-function adjust_fit(obj, event)
+function [possible_peaks, found_peaks] = adjust_fit(obj, event)
     data = guidata(obj);
     [num_grooves, approx_center, left_bound, right_bound, lower_bound] = load_parameters(data);
-    [multiplier, center_wavelength_approx, wavelength_range, possible_peaks] = mcphersoncalib(num_grooves, approx_center)
+    [multiplier, center_wavelength_approx, wavelength_range, possible_peaks] = mcphersoncalib(num_grooves, approx_center);
 
     % Plot entire spectrum
     far_left_bound = center_wavelength_approx - 255 * multiplier;
     far_right_bound = center_wavelength_approx + 256 * multiplier;
-    plot_data(linspace(far_left_bound, far_right_bound, 512), data.calibration_data);
+    old_axis = 1:512;
+    new_axis = linspace(far_left_bound, far_right_bound, 512);
+    plot_data(new_axis, data.calibration_data);
 
     % Default left and right bounds for search area
     if isnan(left_bound)
@@ -89,7 +93,24 @@ function adjust_fit(obj, event)
     plot([right_bound, right_bound], [lower_bound, top], 'r--');
     plot([left_bound, right_bound], [lower_bound, lower_bound], 'r--');
 
+    search_filter = new_axis > left_bound & new_axis < right_bound;
+    [found_heights, found_peaks] = findpeaks(data.calibration_data(search_filter), new_axis(search_filter), ...
+        'MinPeakHeight', lower_bound, 'NPeaks', length(possible_peaks));
+    plot(found_peaks, found_heights, 'r.', 'MarkerSize', 10);
+    
     msg = ['Approximate scale created. Looking for ', num2str(length(possible_peaks)), ' peaks at: ', ...
-        regexprep(num2str(possible_peaks), '\s+', ', '), '. Change left, right, and lower bounds of search area.'];
+        regexprep(num2str(possible_peaks), '\s+', ', '), '. Found ', num2str(length(found_peaks)), ...
+        ' peaks. Change left, right, and lower bounds of search area, if needed.'];
     data.status_msg.String = msg;
+    
+    if length(found_peaks) == length(possible_peaks)
+        % We're ready to try a fit
+        data.try_fit_btn.Enable = 'on';
+    else
+        data.try_fit_btn.Enable = 'off';
+    end
+end
+
+function try_fit(obj, event)
+    [possible_peaks, found_peaks] = adjust_fit(obj, event)
 end

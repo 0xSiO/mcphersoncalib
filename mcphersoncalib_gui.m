@@ -133,4 +133,7 @@ function try_fit(obj, event)
     msg = ['Fit: Wavelength = ', num2str(coeffs(1)), '*Pixel + ', num2str(coeffs(2)), ...
         '. Confidence: ', num2str(100 - mean(percent_errors)), '%'];
     data.status_msg.String = msg;
+    data.fit = fit;
+
+    guidata(data.fig, data);
 end

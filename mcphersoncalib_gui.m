@@ -24,7 +24,7 @@ function new_data = add_ui_components(data)
     uicontrol('Style', 'text', 'Position', [455, 50, 95, 25], 'String', 'Lower Bound (nm)');
     data.lower_bound_field = uicontrol('Style', 'edit', 'Position', [455, 30, 90, 25]);
     data.adjust_fit_btn = uicontrol('Style', 'pushbutton', 'Position', [555, 30, 75, 25], ...
-        'String', 'Adjust Fit', 'Callback', @adjust_fit);
+        'String', 'Adjust Fit', 'Enable', 'off', 'Callback', @adjust_fit);
     data.try_fit_btn = uicontrol('Style', 'pushbutton', 'Position', [640, 30, 75, 25], ...
         'String', 'Try Fit', 'Enable', 'off', 'Callback', @try_fit);
     data.status_msg = uicontrol('Style', 'text', 'Position', [10, 5, 1100, 25], ...
@@ -53,7 +53,9 @@ function load_spe_file(obj, event)
         data.calibration_data = double(readSPE(path, file));
         guidata(obj, data);
         plot_data(1:512, data.calibration_data);
-        data.status_msg.String = 'Enter the number of grooves and an approximate center wavelength, then click "Adjust Fit".';
+        msg = ['Loaded ', file, '. Enter the number of grooves and an approximate center wavelength, then click "Adjust Fit".'];
+        data.adjust_fit_btn.Enable = 'on';
+        data.status_msg.String = msg;
     end
 end
 
@@ -64,7 +66,7 @@ function plot_data(x, data)
     hold on
 end
 
-function [possible_peaks, found_peaks] = adjust_fit(obj, event)
+function adjust_fit(obj, event)
     data = guidata(obj);
     [num_grooves, approx_center, left_bound, right_bound, lower_bound] = load_parameters(data);
     [multiplier, center_wavelength_approx, wavelength_range, possible_peaks] = mcphersoncalib(num_grooves, approx_center);
@@ -95,22 +97,40 @@ function [possible_peaks, found_peaks] = adjust_fit(obj, event)
 
     search_filter = new_axis > left_bound & new_axis < right_bound;
     [found_heights, found_peaks] = findpeaks(data.calibration_data(search_filter), new_axis(search_filter), ...
-        'MinPeakHeight', lower_bound, 'NPeaks', length(possible_peaks));
+        'MinPeakHeight', lower_bound, 'NPeaks', length(possible_peaks), 'SortStr', 'descend');
     plot(found_peaks, found_heights, 'r.', 'MarkerSize', 10);
-    
+
+    % Convert approximate locations back to indices
+    index_filter = ismember(new_axis, found_peaks);
+    peak_locs = old_axis(index_filter);
+
     msg = ['Approximate scale created. Looking for ', num2str(length(possible_peaks)), ' peaks at: ', ...
-        regexprep(num2str(possible_peaks), '\s+', ', '), '. Found ', num2str(length(found_peaks)), ...
+        regexprep(num2str(possible_peaks), '\s+', ', '), '. Found ', num2str(length(peak_locs)), ...
         ' peaks. Change left, right, and lower bounds of search area, if needed.'];
     data.status_msg.String = msg;
-    
-    if length(found_peaks) == length(possible_peaks)
+
+    if length(peak_locs) == length(possible_peaks)
         % We're ready to try a fit
         data.try_fit_btn.Enable = 'on';
+        data.possible_peaks = possible_peaks;
+        data.found_peaks = found_peaks;
+        data.peak_locs = peak_locs;
     else
         data.try_fit_btn.Enable = 'off';
     end
+
+    guidata(data.fig, data);
 end
 
 function try_fit(obj, event)
-    [possible_peaks, found_peaks] = adjust_fit(obj, event)
+    data = guidata(obj);
+    possible_peaks = data.possible_peaks;
+    peak_locs = data.peak_locs;
+    coeffs = polyfit(peak_locs, possible_peaks, 1);
+    fit = @(pixels) polyval(coeffs, pixels);
+    percent_errors = abs(possible_peaks - fit(peak_locs))./possible_peaks * 100;
+
+    msg = ['Fit: Wavelength = ', num2str(coeffs(1)), '*Pixel + ', num2str(coeffs(2)), ...
+        '. Confidence: ', num2str(100 - mean(percent_errors)), '%'];
+    data.status_msg.String = msg;
 end

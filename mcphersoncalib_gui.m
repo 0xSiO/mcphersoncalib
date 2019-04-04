@@ -131,7 +131,7 @@ function try_fit(obj, event)
     percent_errors = abs(possible_peaks - fit(peak_locs))./possible_peaks * 100;
 
     msg = ['Fit: Wavelength = ', num2str(coeffs(1)), '*Pixel + ', num2str(coeffs(2)), ...
-        '. Confidence: ', num2str(100 - mean(percent_errors)), '%'];
+        '. Average Error: ', num2str(mean(percent_errors)), '%'];
     data.status_msg.String = msg;
     data.fit = fit;
 

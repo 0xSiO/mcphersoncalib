@@ -1,6 +1,6 @@
 clear; clc; close all;
 
-data.fig = figure('Visible', 'off', 'Position', [100, 100, 1200, 820]);
+data.fig = figure('Visible', 'off', 'Position', [100, 100, 1400, 820]);
 data.fig.Name = 'McPherson Calibation';
 data = add_ui_components(data);
 
@@ -11,6 +11,7 @@ data.fig.Visible = 'on';
 guidata(data.fig, data);
 
 function new_data = add_ui_components(data)
+    % Base UI to load and fit data
     data.load_btn = uicontrol('Style', 'pushbutton', 'Position', [10, 30, 90, 25], ...
     'String', 'Load Spectrum', 'Callback', @load_spe_file);
     uicontrol('Style', 'text', 'Position', [110, 50, 70, 25], 'String', '# of Grooves');
@@ -29,7 +30,19 @@ function new_data = add_ui_components(data)
         'String', 'Try Fit', 'Enable', 'off', 'Callback', @try_fit);
     data.status_msg = uicontrol('Style', 'text', 'Position', [10, 5, 1100, 25], ...
         'HorizontalAlignment', 'left', 'String', 'Click "Load Spectrum" to begin.');
-    data.axes = axes('Units', 'pixels', 'Position', [50, 120, 1130, 660]);
+    data.axes = axes('Units', 'pixels', 'Position', [40, 120, 1130, 660]);
+
+    % UI to manually fit points
+    uicontrol('Style', 'text', 'Position', [1220, 750, 120, 25], 'String', 'Manually Fit Points');
+    uicontrol('Style', 'text', 'Position', [1180, 730, 200, 25], 'String', '(approx. wavelen , actual wavelen)');
+    uicontrol('Style', 'text', 'Position', [1180, 710, 5, 25], 'String', '(', 'FontSize', 12);
+    data.add_manual_approx_wavelength_field = uicontrol('Style', 'edit', 'Position', [1190, 715, 55, 20]);
+    uicontrol('Style', 'text', 'Position', [1249, 710, 5, 25], 'String', ',', 'FontSize', 12);
+    data.add_manual_actual_wavelength_field = uicontrol('Style', 'edit', 'Position', [1260, 715, 55, 20]);
+    uicontrol('Style', 'text', 'Position', [1320, 710, 5, 25], 'String', ')', 'FontSize', 12);
+    data.add_manual_btn = uicontrol('Style', 'pushbutton', 'Position', [1330, 715, 45, 20], 'String', 'Add');
+    data.manual_points_txt = uicontrol('Style', 'text', 'Position', [1180, 30, 200, 680], 'String', '');
+
     new_data = data;
 end
 

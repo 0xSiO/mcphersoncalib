@@ -13,21 +13,21 @@ guidata(data.fig, data);
 % TODO: Document accessible fields in the guidata structure
 function new_data = add_ui_components(data)
     % Base UI to load and fit data
-    data.btn.load = uicontrol('Style', 'pushbutton', 'Position', [10, 30, 90, 25], ...
+    data.btn.load = uicontrol('Style', 'pushbutton', 'Position', [10, 35, 90, 25], ...
     'String', 'Load Spectrum', 'Callback', @load_spe_file);
     uicontrol('Style', 'text', 'Position', [110, 50, 70, 25], 'String', '# of Grooves');
-    data.field.groove_number = uicontrol('Style', 'edit', 'Position', [110, 30, 70, 25]);
+    data.field.groove_number = uicontrol('Style', 'edit', 'Position', [110, 35, 70, 25]);
     uicontrol('Style', 'text', 'Position', [195, 50, 60, 25], 'String', 'Center (nm)');
-    data.field.approx_center = uicontrol('Style', 'edit', 'Position', [190, 30, 70, 25]);
+    data.field.approx_center = uicontrol('Style', 'edit', 'Position', [190, 35, 70, 25]);
     uicontrol('Style', 'text', 'Position', [270, 50, 80, 25], 'String', 'Left Bound (nm)');
-    data.field.left_bound = uicontrol('Style', 'edit', 'Position', [270, 30, 80, 25]);
+    data.field.left_bound = uicontrol('Style', 'edit', 'Position', [270, 35, 80, 25]);
     uicontrol('Style', 'text', 'Position', [360, 50, 85, 25], 'String', 'Right Bound (nm)');
-    data.field.right_bound = uicontrol('Style', 'edit', 'Position', [360, 30, 85, 25]);
+    data.field.right_bound = uicontrol('Style', 'edit', 'Position', [360, 35, 85, 25]);
     uicontrol('Style', 'text', 'Position', [455, 50, 95, 25], 'String', 'Lower Bound (nm)');
-    data.field.lower_bound = uicontrol('Style', 'edit', 'Position', [455, 30, 90, 25]);
-    data.btn.adjust_fit = uicontrol('Style', 'pushbutton', 'Position', [555, 30, 75, 25], ...
+    data.field.lower_bound = uicontrol('Style', 'edit', 'Position', [455, 35, 90, 25]);
+    data.btn.adjust_fit = uicontrol('Style', 'pushbutton', 'Position', [555, 35, 75, 25], ...
         'String', 'Adjust Fit', 'Enable', 'off', 'Callback', @adjust_fit);
-    data.btn.try_fit = uicontrol('Style', 'pushbutton', 'Position', [640, 30, 75, 25], ...
+    data.btn.try_fit = uicontrol('Style', 'pushbutton', 'Position', [640, 35, 75, 25], ...
         'String', 'Try Fit', 'Enable', 'off', 'Callback', @try_fit);
     data.txt.status = uicontrol('Style', 'text', 'Position', [10, 5, 1360, 25], ...
         'HorizontalAlignment', 'left', 'String', 'Click "Load Spectrum" to begin.');
@@ -42,7 +42,8 @@ function new_data = add_ui_components(data)
     data.field.manual_add.actual_wavelength = uicontrol('Style', 'edit', 'Position', [1260, 715, 55, 20]);
     uicontrol('Style', 'text', 'Position', [1320, 710, 5, 25], 'String', ')', 'FontSize', 12);
     data.btn.manual_add.add = uicontrol('Style', 'pushbutton', 'Position', [1330, 715, 45, 20], 'String', 'Add', 'Callback', @manually_add_point);
-    data.txt.manual_points = uicontrol('Style', 'text', 'Position', [1180, 30, 200, 680], 'String', '');
+    data.txt.manual_points = uicontrol('Style', 'text', 'Position', [1180, 30, 200, 680], 'String', '', 'FontSize', 10);
+    data.manual_points = [];
     new_data = data;
 end
 
@@ -153,8 +154,17 @@ end
 
 function manually_add_point(obj, event)
     data = guidata(obj);
-    disp(['Adding point: ', data.field.manual_add.approx_wavelength.String, ' nm = ', ...
-        data.field.manual_add.actual_wavelength.String, ' nm']);
     approx_wavelength = str2double(data.field.manual_add.approx_wavelength.String);
     actual_wavelength = str2double(data.field.manual_add.actual_wavelength.String);
+
+    if ~isnan(approx_wavelength) & ~isnan(actual_wavelength)
+        data.manual_points = [data.manual_points; approx_wavelength, actual_wavelength];
+        display_manual_points(data)
+        guidata(data.fig, data);
+    end
+end
+
+function display_manual_points(data)
+    points = string(data.manual_points);
+    data.txt.manual_points.String = "(" + points(:, 1) + ", " + points(:, 2) + ")";
 end

@@ -10,25 +10,26 @@ data.fig.Visible = 'on';
 
 guidata(data.fig, data);
 
+% TODO: Document accessible fields in the guidata structure
 function new_data = add_ui_components(data)
     % Base UI to load and fit data
-    data.load_btn = uicontrol('Style', 'pushbutton', 'Position', [10, 30, 90, 25], ...
+    data.btn.load = uicontrol('Style', 'pushbutton', 'Position', [10, 30, 90, 25], ...
     'String', 'Load Spectrum', 'Callback', @load_spe_file);
     uicontrol('Style', 'text', 'Position', [110, 50, 70, 25], 'String', '# of Grooves');
-    data.groove_number_field = uicontrol('Style', 'edit', 'Position', [110, 30, 70, 25]);
+    data.field.groove_number = uicontrol('Style', 'edit', 'Position', [110, 30, 70, 25]);
     uicontrol('Style', 'text', 'Position', [195, 50, 60, 25], 'String', 'Center (nm)');
-    data.approx_center_field = uicontrol('Style', 'edit', 'Position', [190, 30, 70, 25]);
+    data.field.approx_center = uicontrol('Style', 'edit', 'Position', [190, 30, 70, 25]);
     uicontrol('Style', 'text', 'Position', [270, 50, 80, 25], 'String', 'Left Bound (nm)');
-    data.left_bound_field = uicontrol('Style', 'edit', 'Position', [270, 30, 80, 25]);
+    data.field.left_bound = uicontrol('Style', 'edit', 'Position', [270, 30, 80, 25]);
     uicontrol('Style', 'text', 'Position', [360, 50, 85, 25], 'String', 'Right Bound (nm)');
-    data.right_bound_field = uicontrol('Style', 'edit', 'Position', [360, 30, 85, 25]);
+    data.field.right_bound = uicontrol('Style', 'edit', 'Position', [360, 30, 85, 25]);
     uicontrol('Style', 'text', 'Position', [455, 50, 95, 25], 'String', 'Lower Bound (nm)');
-    data.lower_bound_field = uicontrol('Style', 'edit', 'Position', [455, 30, 90, 25]);
-    data.adjust_fit_btn = uicontrol('Style', 'pushbutton', 'Position', [555, 30, 75, 25], ...
+    data.field.lower_bound = uicontrol('Style', 'edit', 'Position', [455, 30, 90, 25]);
+    data.btn.adjust_fit = uicontrol('Style', 'pushbutton', 'Position', [555, 30, 75, 25], ...
         'String', 'Adjust Fit', 'Enable', 'off', 'Callback', @adjust_fit);
-    data.try_fit_btn = uicontrol('Style', 'pushbutton', 'Position', [640, 30, 75, 25], ...
+    data.btn.try_fit = uicontrol('Style', 'pushbutton', 'Position', [640, 30, 75, 25], ...
         'String', 'Try Fit', 'Enable', 'off', 'Callback', @try_fit);
-    data.status_msg = uicontrol('Style', 'text', 'Position', [10, 5, 1100, 25], ...
+    data.txt.status = uicontrol('Style', 'text', 'Position', [10, 5, 1360, 25], ...
         'HorizontalAlignment', 'left', 'String', 'Click "Load Spectrum" to begin.');
     data.axes = axes('Units', 'pixels', 'Position', [40, 120, 1130, 660]);
 
@@ -36,22 +37,21 @@ function new_data = add_ui_components(data)
     uicontrol('Style', 'text', 'Position', [1220, 750, 120, 25], 'String', 'Manually Fit Points');
     uicontrol('Style', 'text', 'Position', [1180, 730, 200, 25], 'String', '(approx. wavelen , actual wavelen)');
     uicontrol('Style', 'text', 'Position', [1180, 710, 5, 25], 'String', '(', 'FontSize', 12);
-    data.add_manual_approx_wavelength_field = uicontrol('Style', 'edit', 'Position', [1190, 715, 55, 20]);
+    data.field.manual_add.approx_wavelength = uicontrol('Style', 'edit', 'Position', [1190, 715, 55, 20]);
     uicontrol('Style', 'text', 'Position', [1249, 710, 5, 25], 'String', ',', 'FontSize', 12);
-    data.add_manual_actual_wavelength_field = uicontrol('Style', 'edit', 'Position', [1260, 715, 55, 20]);
+    data.field.manual_add.actual_wavelength = uicontrol('Style', 'edit', 'Position', [1260, 715, 55, 20]);
     uicontrol('Style', 'text', 'Position', [1320, 710, 5, 25], 'String', ')', 'FontSize', 12);
-    data.add_manual_btn = uicontrol('Style', 'pushbutton', 'Position', [1330, 715, 45, 20], 'String', 'Add');
-    data.manual_points_txt = uicontrol('Style', 'text', 'Position', [1180, 30, 200, 680], 'String', '');
-
+    data.btn.manual_add.add = uicontrol('Style', 'pushbutton', 'Position', [1330, 715, 45, 20], 'String', 'Add', 'Callback', @manually_add_point);
+    data.txt.manual_points = uicontrol('Style', 'text', 'Position', [1180, 30, 200, 680], 'String', '');
     new_data = data;
 end
 
 function [num_grooves, approx_center, left_bound, right_bound, lower_bound] = load_parameters(data)
-    num_grooves = str2double(data.groove_number_field.String);
-    approx_center = str2double(data.approx_center_field.String);
-    left_bound = str2double(data.left_bound_field.String);
-    right_bound = str2double(data.right_bound_field.String);
-    lower_bound = str2double(data.lower_bound_field.String);
+    num_grooves = str2double(data.field.groove_number.String);
+    approx_center = str2double(data.field.approx_center.String);
+    left_bound = str2double(data.field.left_bound.String);
+    right_bound = str2double(data.field.right_bound.String);
+    lower_bound = str2double(data.field.lower_bound.String);
     if isnan(lower_bound)
         lower_bound = 0;
     end
@@ -67,8 +67,8 @@ function load_spe_file(obj, event)
         guidata(obj, data);
         plot_data(1:512, data.calibration_data);
         msg = ['Loaded ', file, '. Enter the number of grooves and an approximate center wavelength, then click "Adjust Fit".'];
-        data.adjust_fit_btn.Enable = 'on';
-        data.status_msg.String = msg;
+        data.btn.adjust_fit.Enable = 'on';
+        data.txt.status.String = msg;
     end
 end
 
@@ -120,16 +120,16 @@ function adjust_fit(obj, event)
     msg = ['Approximate scale created. Looking for ', num2str(length(possible_peaks)), ' peaks at: ', ...
         regexprep(num2str(possible_peaks), '\s+', ', '), '. Found ', num2str(length(peak_locs)), ...
         ' peaks. Change left, right, and lower bounds of search area, if needed.'];
-    data.status_msg.String = msg;
+    data.txt.status.String = msg;
 
     if length(peak_locs) == length(possible_peaks)
         % We're ready to try a fit
-        data.try_fit_btn.Enable = 'on';
+        data.btn.try_fit.Enable = 'on';
         data.possible_peaks = possible_peaks;
         data.found_peaks = found_peaks;
         data.peak_locs = peak_locs;
     else
-        data.try_fit_btn.Enable = 'off';
+        data.btn.try_fit.Enable = 'off';
     end
 
     guidata(data.fig, data);
@@ -145,8 +145,16 @@ function try_fit(obj, event)
 
     msg = ['Fit: Wavelength = ', num2str(coeffs(1)), '*Pixel + ', num2str(coeffs(2)), ...
         '. Average Error: ', num2str(mean(percent_errors)), '%'];
-    data.status_msg.String = msg;
+    data.txt.status.String = msg;
     data.fit = fit;
 
     guidata(data.fig, data);
+end
+
+function manually_add_point(obj, event)
+    data = guidata(obj);
+    disp(['Adding point: ', data.field.manual_add.approx_wavelength.String, ' nm = ', ...
+        data.field.manual_add.actual_wavelength.String, ' nm']);
+    approx_wavelength = str2double(data.field.manual_add.approx_wavelength.String);
+    actual_wavelength = str2double(data.field.manual_add.actual_wavelength.String);
 end

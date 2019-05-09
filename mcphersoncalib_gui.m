@@ -80,6 +80,7 @@ function plot_data(x, data)
     hold on
 end
 
+% TODO: Store X values of adjusted axis for use in matching manually added points later.
 function adjust_fit(obj, event)
     data = guidata(obj);
     [num_grooves, approx_center, left_bound, right_bound, lower_bound] = load_parameters(data);

@@ -134,6 +134,8 @@ function adjust_fit(obj, event)
         data.btn.try_fit.Enable = 'off';
     end
 
+    data.approximate_axis = new_axis;
+
     guidata(data.fig, data);
 end
 

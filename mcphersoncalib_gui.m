@@ -141,6 +141,10 @@ function adjust_fit(obj, event)
     guidata(data.fig, data);
 end
 
+% Modification for fitting manual points: subtract manual wavelength value
+% from all values on approximate axis, find the point at which the
+% difference is the smallest, pick that index to use for the fit. Override
+% auto-fitted value if necessary.
 function try_fit(obj, event)
     data = guidata(obj);
     possible_peaks = data.possible_peaks;

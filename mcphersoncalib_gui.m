@@ -80,7 +80,6 @@ function plot_data(x, data)
     hold on
 end
 
-% TODO: Store X values of adjusted axis for use in matching manually added points later.
 function adjust_fit(obj, event)
     data = guidata(obj);
     [num_grooves, approx_center, left_bound, right_bound, lower_bound] = load_parameters(data);
@@ -124,8 +123,11 @@ function adjust_fit(obj, event)
         ' peaks. Change left, right, and lower bounds of search area, if needed.'];
     data.txt.status.String = msg;
 
-    if length(peak_locs) == length(possible_peaks)
-        % We're ready to try a fit
+    % Can make a fit if number of auto-fitted points + manually fitted
+    % points is >= number of peaks we're looking for, OR if we have 2 or
+    % more manually fitted points.
+    num_of_points = length(peak_locs) + length(data.manual_points);
+    if num_of_points >= length(possible_peaks) || length(data.manual_points) >= 2
         data.btn.try_fit.Enable = 'on';
         data.possible_peaks = possible_peaks;
         data.found_peaks = found_peaks;
@@ -160,14 +162,10 @@ function manually_add_point(obj, event)
     approx_wavelength = str2double(data.field.manual_add.approx_wavelength.String);
     actual_wavelength = str2double(data.field.manual_add.actual_wavelength.String);
 
-    if ~isnan(approx_wavelength) & ~isnan(actual_wavelength)
+    if ~isnan(approx_wavelength) && ~isnan(actual_wavelength)
         data.manual_points = [data.manual_points; approx_wavelength, actual_wavelength];
-        display_manual_points(data)
+        points = string(data.manual_points);
+        data.txt.manual_points.String = "(" + points(:, 1) + ", " + points(:, 2) + ")";
         guidata(data.fig, data);
     end
-end
-
-function display_manual_points(data)
-    points = string(data.manual_points);
-    data.txt.manual_points.String = "(" + points(:, 1) + ", " + points(:, 2) + ")";
 end

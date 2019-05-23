@@ -141,14 +141,15 @@ function adjust_fit(obj, event)
     guidata(data.fig, data);
 end
 
-% Modification for fitting manual points: subtract manual wavelength value
-% from all values on approximate axis, find the point at which the
-% difference is the smallest, pick that index to use for the fit. Override
-% auto-fitted value if necessary.
 function try_fit(obj, event)
     data = guidata(obj);
     possible_peaks = data.possible_peaks;
     peak_locs = data.peak_locs;
+
+    % Combine these for final fit
+    auto_pixel_map = [data.peak_locs.', data.possible_peaks.'];
+    manual_pixel_map = map_manual_points_to_pixels(data);
+
     coeffs = polyfit(peak_locs, possible_peaks, 1);
     fit = @(pixels) polyval(coeffs, pixels);
     percent_errors = abs(possible_peaks - fit(peak_locs))./possible_peaks * 100;
@@ -161,6 +162,11 @@ function try_fit(obj, event)
     guidata(data.fig, data);
 end
 
+% Add manual points to the peaks to be fitted. If there are manual points
+% that coincide with auto-fitted points, just overwrite them. ("update-insert")
+function auto_and_manual_peaks = upsert_manual_points(manual_pixel_map, auto_pixel_map)
+end
+
 function manually_add_point(obj, event)
     data = guidata(obj);
     approx_wavelength = str2double(data.field.manual_add.approx_wavelength.String);
@@ -171,5 +177,19 @@ function manually_add_point(obj, event)
         points = string(data.manual_points);
         data.txt.manual_points.String = "(" + points(:, 1) + ", " + points(:, 2) + ")";
         guidata(data.fig, data);
+    end
+end
+
+% Convert manual points to pixel indexes: subtract manual wavelength value
+% from all values on approximate axis, find the point at which the
+% difference is the smallest, pick that index to use for the fit.
+% Note this returns a matrix with doubles.
+function manual_pixel_map = map_manual_points_to_pixels(data)
+    manual_pixel_map = zeros(size(data.manual_points));
+    for n = 1:length(data.manual_points)
+        manual_location = data.manual_points(n, 1);
+        manual_wavelength = data.manual_points(n, 2);
+        [~, index] = min(abs(data.approximate_axis - manual_location));
+        manual_pixel_map(n, :) = [index, manual_wavelength];
     end
 end

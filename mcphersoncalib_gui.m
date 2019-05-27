@@ -27,8 +27,8 @@ function new_data = add_ui_components(data)
     data.field.lower_bound = uicontrol('Style', 'edit', 'Position', [455, 35, 90, 25]);
     data.btn.adjust_fit = uicontrol('Style', 'pushbutton', 'Position', [555, 35, 75, 25], ...
         'String', 'Adjust Fit', 'Enable', 'off', 'Callback', @adjust_fit);
-    data.btn.try_fit = uicontrol('Style', 'pushbutton', 'Position', [640, 35, 75, 25], ...
-        'String', 'Try Fit', 'Enable', 'off', 'Callback', @try_fit);
+    data.btn.apply_fit = uicontrol('Style', 'pushbutton', 'Position', [640, 35, 75, 25], ...
+        'String', 'Apply Fit', 'Enable', 'off', 'Callback', @apply_fit);
     data.txt.status = uicontrol('Style', 'text', 'Position', [10, 5, 1360, 25], ...
         'HorizontalAlignment', 'left', 'String', 'Click "Load Spectrum" to begin.');
     data.axes = axes('Units', 'pixels', 'Position', [60, 120, 1100, 660]);
@@ -132,10 +132,10 @@ function adjust_fit(obj, event)
     % more manually fitted points.
     num_of_points = length(peak_locs) + length(data.manual_points);
     if num_of_points >= length(possible_peaks) || length(data.manual_points) >= 2
-        data.btn.try_fit.Enable = 'on';
+        data.btn.apply_fit.Enable = 'on';
         data.auto_pixel_map = [peak_locs.', possible_peaks.'];
     else
-        data.btn.try_fit.Enable = 'off';
+        data.btn.apply_fit.Enable = 'off';
     end
 
     data.approximate_axis = new_axis;
@@ -143,7 +143,7 @@ function adjust_fit(obj, event)
     guidata(data.fig, data);
 end
 
-function try_fit(obj, event)
+function apply_fit(obj, event)
     map_manual_points_to_pixels(guidata(obj));
     upsert_manual_points(guidata(obj));
     data = guidata(obj);
@@ -173,7 +173,7 @@ end
 function upsert_manual_points(data)
     for n = 1:size(data.auto_pixel_map, 1)
         for m = 1:size(data.manual_pixel_map, 1)
-            if data.manual_pixel_map(n, 1) == data.auto_pixel_map(m, 1)
+            if data.auto_pixel_map(n, 1) == data.manual_pixel_map(m, 1)
                 data.auto_pixel_map(m, :) = [0, 0];
             end
         end

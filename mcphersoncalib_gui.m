@@ -31,7 +31,7 @@ function new_data = add_ui_components(data)
         'String', 'Try Fit', 'Enable', 'off', 'Callback', @try_fit);
     data.txt.status = uicontrol('Style', 'text', 'Position', [10, 5, 1360, 25], ...
         'HorizontalAlignment', 'left', 'String', 'Click "Load Spectrum" to begin.');
-    data.axes = axes('Units', 'pixels', 'Position', [40, 120, 1130, 660]);
+    data.axes = axes('Units', 'pixels', 'Position', [60, 120, 1100, 660]);
 
     % UI to manually fit points
     uicontrol('Style', 'text', 'Position', [1220, 750, 120, 25], 'String', 'Manually Fit Points');
@@ -67,6 +67,8 @@ function load_spe_file(obj, event)
         data.calibration_data = double(readSPE(path, file));
         guidata(obj, data);
         plot_data(1:512, data.calibration_data);
+        xlabel('Pixels');
+        ylabel('Counts');
         msg = ['Loaded ', file, '. Enter the number of grooves and an approximate center wavelength, then click "Adjust Fit".'];
         data.btn.adjust_fit.Enable = 'on';
         data.txt.status.String = msg;
@@ -91,6 +93,8 @@ function adjust_fit(obj, event)
     old_axis = 1:512;
     new_axis = linspace(far_left_bound, far_right_bound, 512);
     plot_data(new_axis, data.calibration_data);
+    xlabel('Approx. Wavelength (nm)');
+    ylabel('Counts');
 
     % Default left and right bounds for search area
     if isnan(left_bound)
@@ -129,9 +133,7 @@ function adjust_fit(obj, event)
     num_of_points = length(peak_locs) + length(data.manual_points);
     if num_of_points >= length(possible_peaks) || length(data.manual_points) >= 2
         data.btn.try_fit.Enable = 'on';
-        data.possible_peaks = possible_peaks;
-        data.found_peaks = found_peaks;
-        data.peak_locs = peak_locs;
+        data.auto_pixel_map = [peak_locs.', possible_peaks.'];
     else
         data.btn.try_fit.Enable = 'off';
     end
@@ -142,17 +144,21 @@ function adjust_fit(obj, event)
 end
 
 function try_fit(obj, event)
+    map_manual_points_to_pixels(guidata(obj));
+    upsert_manual_points(guidata(obj));
     data = guidata(obj);
-    possible_peaks = data.possible_peaks;
-    peak_locs = data.peak_locs;
 
-    % Combine these for final fit
-    auto_pixel_map = [data.peak_locs.', data.possible_peaks.'];
-    manual_pixel_map = map_manual_points_to_pixels(data);
+    all_locs = data.all_points(:, 1);
+    all_peaks = data.all_points(:, 2);
 
-    coeffs = polyfit(peak_locs, possible_peaks, 1);
+    coeffs = polyfit(all_locs, all_peaks, 1);
     fit = @(pixels) polyval(coeffs, pixels);
-    percent_errors = abs(possible_peaks - fit(peak_locs))./possible_peaks * 100;
+    percent_errors = abs(all_peaks - fit(all_locs))./all_peaks * 100;
+
+    new_axis = fit(1:512);
+    plot_data(new_axis, data.calibration_data);
+    xlabel('Wavelength (nm)');
+    ylabel('Counts');
 
     msg = ['Fit: Wavelength = ', num2str(coeffs(1)), '*Pixel + ', num2str(coeffs(2)), ...
         '. Average Error: ', num2str(mean(percent_errors)), '%'];
@@ -164,7 +170,20 @@ end
 
 % Add manual points to the peaks to be fitted. If there are manual points
 % that coincide with auto-fitted points, just overwrite them. ("update-insert")
-function auto_and_manual_peaks = upsert_manual_points(manual_pixel_map, auto_pixel_map)
+function upsert_manual_points(data)
+    for n = 1:size(data.auto_pixel_map, 1)
+        for m = 1:size(data.manual_pixel_map, 1)
+            if data.manual_pixel_map(n, 1) == data.auto_pixel_map(m, 1)
+                data.auto_pixel_map(m, :) = [0, 0];
+            end
+        end
+    end
+
+    auto_and_manual_peaks = [data.manual_pixel_map; data.auto_pixel_map];
+    % Remove rows of zeros and duplicates
+    auto_and_manual_peaks = auto_and_manual_peaks(any(auto_and_manual_peaks, 2),:);
+    data.all_points = unique(auto_and_manual_peaks, 'stable', 'rows');
+    guidata(data.fig, data);
 end
 
 function manually_add_point(obj, event)
@@ -183,13 +202,13 @@ end
 % Convert manual points to pixel indexes: subtract manual wavelength value
 % from all values on approximate axis, find the point at which the
 % difference is the smallest, pick that index to use for the fit.
-% Note this returns a matrix with doubles.
-function manual_pixel_map = map_manual_points_to_pixels(data)
-    manual_pixel_map = zeros(size(data.manual_points));
-    for n = 1:length(data.manual_points)
+function map_manual_points_to_pixels(data)
+    data.manual_pixel_map = zeros(size(data.manual_points));
+    for n = 1:size(data.manual_points, 1)
         manual_location = data.manual_points(n, 1);
         manual_wavelength = data.manual_points(n, 2);
         [~, index] = min(abs(data.approximate_axis - manual_location));
-        manual_pixel_map(n, :) = [index, manual_wavelength];
+        data.manual_pixel_map(n, :) = [index, manual_wavelength];
     end
+    guidata(data.fig, data);
 end

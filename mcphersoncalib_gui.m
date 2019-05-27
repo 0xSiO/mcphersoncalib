@@ -29,6 +29,8 @@ function new_data = add_ui_components(data)
         'String', 'Adjust Fit', 'Enable', 'off', 'Callback', @adjust_fit);
     data.btn.apply_fit = uicontrol('Style', 'pushbutton', 'Position', [640, 35, 75, 25], ...
         'String', 'Apply Fit', 'Enable', 'off', 'Callback', @apply_fit);
+    data.btn.save_data = uicontrol('Style', 'pushbutton', 'Position', [725, 35, 75, 25], ...
+        'String', 'Save Data', 'Enable', 'off', 'Callback', @save_data);
     data.txt.status = uicontrol('Style', 'text', 'Position', [10, 5, 1360, 25], ...
         'HorizontalAlignment', 'left', 'String', 'Click "Load Spectrum" to begin.');
     data.axes = axes('Units', 'pixels', 'Position', [60, 120, 1100, 660]);
@@ -162,10 +164,22 @@ function apply_fit(obj, event)
 
     msg = ['Fit: Wavelength = ', num2str(coeffs(1)), '*Pixel + ', num2str(coeffs(2)), ...
         '. Average Error: ', num2str(mean(percent_errors)), '%'];
+    data.btn.save_data.Enable = 'on';
     data.txt.status.String = msg;
     data.fit = fit;
 
     guidata(data.fig, data);
+end
+
+function save_data(obj, event)
+    gui_data = guidata(obj);
+    data = [gui_data.fit(1:512).', gui_data.calibration_data.'];
+    [file, path] = uiputfile('*.mat', 'Save fitted data', '');
+    if file == 0
+        return;
+    else
+        save([path, file], 'data');
+    end
 end
 
 % Add manual points to the peaks to be fitted. If there are manual points

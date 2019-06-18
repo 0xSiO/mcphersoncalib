@@ -5,28 +5,20 @@ function [multiplier, center_wavelength_approx, wavelength_range, possible_peaks
 
 % 512 pixels in SPE snapshot.
 
+% 50 groove:  1 pixel = 0.706 nm, offset manually calibrated to 0 nm
+multiplier_50 = 0.706;
+offset_50 = 0;
+
 % 300 groove: 1 pixel = 0.114 nm, actual center shifted left 8.60 nm
-%     this is based on several manual fits that gave offsets of:
+%     this is a guess based on several manual fits that gave offsets of:
 %     7.93, 6.51, 8.13, 10.63, 10.31, 9.4, 7.83, 7.29, 8.14, 7.82, 9.31, 8.68, 7.93, 7.93, 8.74, 8.85
 multiplier_300 = 0.114;
 offset_300 = 8.60;
 
-%   TODO: confirm this! 50 groove: 1 pixel = 0.69981 nm
 %   TODO: other gratings
 
-if grooves == 300
-    multiplier = multiplier_300;
-    offset = offset_300;
-end
-
-center_wavelength_approx = 1800/grooves * center - offset;
-
-% Range stretches across entire snapshot.
-% TODO: Make this configurable
-left_bound = center_wavelength_approx - 250 * multiplier;
-right_bound = center_wavelength_approx + 250 * multiplier;
-wavelength_range = [left_bound, right_bound];
-
+% The following is a list of peaks that should be resolvable by the very
+% higher-groove gratings (union of all other lower-groove gratings)
 % TODO: currently some locations are missing. See NIST database for more
 % accurate data.
 % use setdiff(some_vec, neon_peaks) to see values not in this vector
@@ -41,8 +33,10 @@ neon_peaks = [
     837.761, 849.536, 863.465, 865.438, 878.062, 878.375, 885.387, ...
     920.176, 1056.241, 1079.804, 1084.448];
 
-% These are locations of moderate to large peaks that are definitely 
-% resolvable by the 300 groove grating.
+% The following are locations of peaks that are definitely resolvable by
+% each grating.
+neon_peaks_50 = [614.306, 640.225, 650.653, 667.828, 692.947, 703.241, 724.517, 743.890];
+
 neon_peaks_300 = [
     585.249, 588.190, 594.483, 597.553, 603.000, 607.434, 609.616, ...
     614.306, 616.359, 621.728, 626.650, 630.479, 633.443, 638.299, ...
@@ -53,7 +47,23 @@ neon_peaks_300 = [
     914.867, 920.176, 922.006, 930.085, 932.651, 942.538, 953.416, ...
     954.741, 966.542];
 
-peak_locations = neon_peaks_300; % change depending on grating used
-              
+if grooves == 50
+    multiplier = multiplier_50;
+    offset = offset_50;
+    peak_locations = neon_peaks_50;
+elseif grooves == 300
+    multiplier = multiplier_300;
+    offset = offset_300;
+    peak_locations = neon_peaks_300;
+end
+
+center_wavelength_approx = 1800/grooves * center - offset;
+
+% Range stretches (almost) across entire snapshot.
+% TODO: Make this configurable
+left_bound = center_wavelength_approx - 250 * multiplier;
+right_bound = center_wavelength_approx + 250 * multiplier;
+wavelength_range = [left_bound, right_bound];
+
 possible_peaks = peak_locations(peak_locations > wavelength_range(1) & peak_locations < wavelength_range(2));
 end

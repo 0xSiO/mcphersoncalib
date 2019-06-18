@@ -1,18 +1,17 @@
-clear; clc; close all;
+clear; close all;
 
 % This uses data from the 50 groove grating
 calibration_data = double(readSPE('calibration.SPE'));
 
-% Minimum peak intensity: 600
-[peaks, peak_locations] = findpeaks(calibration_data, 'MinPeakHeight', 600);
+[peaks, peak_locations] = findpeaks(calibration_data, 'MinPeakHeight', 550);
 peak_values = calibration_data(peak_locations);
 
 figure(1);
 subplot(2, 1, 1);
 plot_calibration_peaks(calibration_data, peak_locations);
 
-% This gives us 6 peaks. Let's match to known corresponding wavelengths.
-known_peak_wavelengths = [640.225, 650.653, 670, 692.947, 703.241, 724.517];
+% This gives us some peaks. Let's match to known corresponding wavelengths.
+known_peak_wavelengths = [614.306, 640.225, 650.653, 667.828, 692.947, 703.241, 724.517, 743.890]
 
 % Find a fit to convert pixels to wavelengths
 coeffs = polyfit(peak_locations, known_peak_wavelengths, 1);

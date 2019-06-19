@@ -6,6 +6,7 @@ function [multiplier, center_wavelength_approx, wavelength_range, possible_peaks
 % 512 pixels in SPE snapshot.
 
 % 50 groove:  1 pixel = 0.706 nm, offset manually calibrated to 0 nm
+% TODO: Double check offsets for all gratings
 multiplier_50 = 0.706;
 offset_50 = 0;
 
@@ -34,8 +35,11 @@ neon_peaks = [
     920.176, 1056.241, 1079.804, 1084.448];
 
 % The following are locations of peaks that are definitely resolvable by
-% each grating.
-neon_peaks_50 = [614.306, 640.225, 650.653, 667.828, 692.947, 703.241, 724.517, 743.890];
+% each grating. Peaks composed of two spectral lines that have 'merged' are
+% not included.
+neon_peaks_50 = [
+    614.306, 632.816, 640.225, 650.653, 659.895, 667.828, 671.704, ...
+    692.947, 703.241, 724.517, 743.890];
 
 neon_peaks_300 = [
     585.249, 588.190, 594.483, 597.553, 603.000, 607.434, 609.616, ...
@@ -59,8 +63,8 @@ end
 
 center_wavelength_approx = 1800/grooves * center - offset;
 
-% Range stretches (almost) across entire snapshot.
-% TODO: Make this configurable
+% Range stretches (almost) across entire snapshot. This is configurable by
+% adjusting the search area in the GUI.
 left_bound = center_wavelength_approx - 250 * multiplier;
 right_bound = center_wavelength_approx + 250 * multiplier;
 wavelength_range = [left_bound, right_bound];

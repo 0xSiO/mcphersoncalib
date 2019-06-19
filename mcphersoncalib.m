@@ -8,13 +8,13 @@ function [multiplier, center_wavelength_approx, wavelength_range, possible_peaks
 % 50 groove:  1 pixel = 0.706 nm, offset manually calibrated to 0 nm
 % TODO: Double check offsets for all gratings
 multiplier_50 = 0.706;
-offset_50 = 0;
+offset_50 = 9.69;
 
 % 300 groove: 1 pixel = 0.114 nm, actual center shifted left 8.60 nm
 %     this is a guess based on several manual fits that gave offsets of:
 %     7.93, 6.51, 8.13, 10.63, 10.31, 9.4, 7.83, 7.29, 8.14, 7.82, 9.31, 8.68, 7.93, 7.93, 8.74, 8.85
 multiplier_300 = 0.114;
-offset_300 = 8.60;
+offset_300 = 6.64;
 
 %   TODO: other gratings
 
@@ -38,8 +38,8 @@ neon_peaks = [
 % each grating. Peaks composed of two spectral lines that have 'merged' are
 % not included.
 neon_peaks_50 = [
-    614.306, 632.816, 640.225, 650.653, 659.895, 667.828, 671.704, ...
-    692.947, 703.241, 724.517, 743.890];
+    614.306, 640.225, 650.653, 659.895, 667.828, 671.704, 692.947, ...
+    703.241, 724.517, 743.890];
 
 neon_peaks_300 = [
     585.249, 588.190, 594.483, 597.553, 603.000, 607.434, 609.616, ...
@@ -61,7 +61,7 @@ elseif grooves == 300
     peak_locations = neon_peaks_300;
 end
 
-center_wavelength_approx = 1800/grooves * center - offset;
+center_wavelength_approx = 1800/grooves * center + offset;
 
 % Range stretches (almost) across entire snapshot. This is configurable by
 % adjusting the search area in the GUI.

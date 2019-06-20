@@ -5,18 +5,15 @@ function [multiplier, center_wavelength_approx, wavelength_range, possible_peaks
 
 % 512 pixels in SPE snapshot.
 
-% 50 groove:  1 pixel = 0.706 nm, offset manually calibrated to 0 nm
-% TODO: Double check offsets for all gratings
+% 50 groove:  1 pixel = 0.706 nm, actual center shifted right ~9.69 nm
 multiplier_50 = 0.706;
 offset_50 = 9.69;
 
-% 300 groove: 1 pixel = 0.114 nm, actual center shifted left 8.60 nm
-%     this is a guess based on several manual fits that gave offsets of:
-%     7.93, 6.51, 8.13, 10.63, 10.31, 9.4, 7.83, 7.29, 8.14, 7.82, 9.31, 8.68, 7.93, 7.93, 8.74, 8.85
+% 300 groove: 1 pixel = 0.114 nm, actual center shifted right ~6.64 nm
 multiplier_300 = 0.114;
 offset_300 = 6.64;
 
-%   TODO: other gratings
+% TODO: other gratings
 
 % The following is a list of peaks that should be resolvable by the very
 % higher-groove gratings (union of all other lower-groove gratings)

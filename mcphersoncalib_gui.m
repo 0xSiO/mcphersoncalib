@@ -135,6 +135,11 @@ function adjust_fit(obj, event)
     num_of_points = length(peak_locs) + length(data.manual_points);
     if num_of_points >= length(possible_peaks) || length(data.manual_points) >= 2
         data.btn.apply_fit.Enable = 'on';
+        % TODO: Critical bug - adjusting fit to remove auto-fitted points
+        % means concatenating the below arrays is not possible, since
+        % possible_peaks includes those that were manually fitted. Maybe
+        % sort auto + manual points and match with expected peaks, or just
+        % limit the expected peaks and add missing ones manually.
         data.auto_pixel_map = [peak_locs.', possible_peaks.'];
     else
         data.btn.apply_fit.Enable = 'off';

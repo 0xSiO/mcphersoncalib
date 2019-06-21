@@ -13,6 +13,10 @@ offset_50 = 9.69;
 multiplier_300 = 0.114;
 offset_300 = 6.64;
 
+% 1200 groove: 1 pixel = 0.024 nm, actual center shifted right ~5.63 nm
+multiplier_1200 = 0.024;
+offset_1200 = 5.63;
+
 % TODO: other gratings
 
 % The following is a list of peaks that should be resolvable by the
@@ -69,6 +73,10 @@ elseif grooves == 300
     multiplier = multiplier_300;
     offset = offset_300;
     peak_locations = neon_peaks_300;
+elseif grooves == 1200
+    multiplier = multiplier_1200;
+    offset = offset_1200;
+    peak_locations = neon_peaks;
 end
 
 center_wavelength_approx = 1800/grooves * center + offset;

@@ -115,14 +115,19 @@ function adjust_fit(obj, event)
     plot([right_bound, right_bound], [lower_bound, top], 'r--');
     plot([left_bound, right_bound], [lower_bound, lower_bound], 'r--');
 
-    search_filter = new_axis > left_bound & new_axis < right_bound;
-    [found_heights, found_peaks] = findpeaks(data.calibration_data(search_filter), new_axis(search_filter), ...
-        'MinPeakHeight', lower_bound, 'NPeaks', length(possible_peaks), 'SortStr', 'descend');
-    plot(found_peaks, found_heights, 'r.', 'MarkerSize', 10);
+    if ~isempty(possible_peaks)
+        search_filter = new_axis > left_bound & new_axis < right_bound;
+        [found_heights, found_peaks] = findpeaks(data.calibration_data(search_filter), new_axis(search_filter), ...
+            'MinPeakHeight', lower_bound, 'NPeaks', length(possible_peaks), 'SortStr', 'descend');
+        plot(found_peaks, found_heights, 'r.', 'MarkerSize', 10);
 
-    % Convert approximate locations back to indices
-    index_filter = ismember(new_axis, found_peaks);
-    peak_locs = old_axis(index_filter);
+        % Convert approximate locations back to indices
+        index_filter = ismember(new_axis, found_peaks);
+        peak_locs = old_axis(index_filter);
+    else
+        % findpeaks complains if you tell it to find zero peaks
+        peak_locs = [];
+    end
 
     msg = ['Approximate scale created. Looking for ', num2str(length(possible_peaks)), ' peaks at: ', ...
         regexprep(num2str(possible_peaks), '\s+', ', '), '. Found ', num2str(length(peak_locs)), ...
@@ -133,12 +138,15 @@ function adjust_fit(obj, event)
     % expected points, OR if we just have >= 2 manual points. If we have
     % the wrong number of auto-fitted points and no manual points, we're
     % out of luck.
-    if length(peak_locs) == length(possible_peaks) || ...
-        (isempty(peak_locs) && length(data.manual_points) >= 2)
+    if length(peak_locs) == length(possible_peaks) && ~isempty(peak_locs)
         data.btn.apply_fit.Enable = 'on';
         data.auto_pixel_map = [peak_locs.', possible_peaks.'];
+    elseif isempty(peak_locs) && size(data.manual_points, 1) >= 2
+        data.btn.apply_fit.Enable = 'on';
+        data.auto_pixel_map = [];
     else
         data.btn.apply_fit.Enable = 'off';
+        data.auto_pixel_map = [];
     end
 
     data.approximate_axis = new_axis;
@@ -194,7 +202,12 @@ function upsert_manual_points(data)
         end
     end
 
-    auto_and_manual_peaks = [data.manual_pixel_map; data.auto_pixel_map];
+    if isempty(data.auto_pixel_map)
+        % This will make the union() of auto and manual points work
+        data.auto_pixel_map = [0, 0];
+    end
+
+    auto_and_manual_peaks = union(data.manual_pixel_map, data.auto_pixel_map, 'rows');
     % Remove rows of zeros and duplicates
     auto_and_manual_peaks = auto_and_manual_peaks(any(auto_and_manual_peaks, 2),:);
     data.all_points = unique(auto_and_manual_peaks, 'stable', 'rows');

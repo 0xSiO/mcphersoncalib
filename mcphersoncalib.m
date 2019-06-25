@@ -20,10 +20,11 @@ offset_1200 = 5.30;
 % TODO: other gratings
 
 % The following is a list of peaks that should be resolvable by the
-% higher-groove gratings. This is pulled directly from the NIST spectral
-% lines database and includes all wavelengths that have a minimum "relative
-% intensity" of 3000.
-neon_peaks = [
+% 1200-groove grating. This is pulled directly from the NIST spectral
+% lines database and includes most wavelengths that have a minimum
+% "relative intensity" of 3000. Pairs of wavelengths that are too closely
+% spaced have been replaced by the one that is more intense.
+neon_peaks_1200 = [
     336.99069, 341.79031, 347.25706, 352.04714, 359.35263, ...
     442.25205, 442.48065, 448.80926, 453.77545, ...
     457.50620, 464.5418, 465.63936, 467.8218, 470.43949, ...
@@ -74,7 +75,7 @@ elseif grooves == 300
 elseif grooves == 1200
     multiplier = multiplier_1200;
     offset = offset_1200;
-    peak_locations = neon_peaks;
+    peak_locations = neon_peaks_1200;
 end
 
 center_wavelength_approx = 1800/grooves * center + offset;

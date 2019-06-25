@@ -174,7 +174,7 @@ end
 
 function save_data(obj, event)
     gui_data = guidata(obj);
-    data = [gui_data.fit(1:512).', gui_data.calibration_data.'];
+    data = [gui_data.fit(1:512); gui_data.calibration_data].';
     [file, path] = uiputfile('*.mat', 'Save fitted data', '');
     if file == 0
         return;

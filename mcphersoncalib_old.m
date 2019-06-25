@@ -1,11 +1,20 @@
 clear;
 
-% This uses data from the 1200 groove grating
-%calibration_data = double(readSPE('50_groove_neon_spectra/calibration_50grv_06192019_centered_at_18.SPE'));
+% wavelength = 0.023886 * pixel + 696.6008
+% offset: +5.66
+%calibration_data = double(readSPE('1200_groove_neon_spectra/calibration_1200gv_06252019_centeredat_464.7.SPE'));
 
-% wavelength = 0.023886 * pixel + 700.0164
-calibration_data = double(readSPE('1200_groove_neon_spectra/calibration_1200gv_06212019_centeredat_467.SPE'));
-%calibration_data = double(readSPE('1200_groove_neon_spectra/calibration_1200gv_06212019_centeredat_440.3.SPE'));
+% wavelength = 0.023738 * pixel + 691.9743
+% offset: +5.50
+%calibration_data = double(readSPE('1200_groove_neon_spectra/calibration_1200gv_06252019_centeredat_461.7.SPE'));
+
+% wavelength = 0.024247 * pixel + 649.2049
+% offset: +5.16
+%calibration_data = double(readSPE('1200_groove_neon_spectra/calibration_1200gv_06252019_centeredat_433.5.SPE'));
+
+% wavelength = 0.024798 * pixel + 606.0208
+% offset: +4.87
+%calibration_data = double(readSPE('1200_groove_neon_spectra/calibration_1200gv_06252019_centeredat_405.SPE'));
 
 [peaks, peak_locations] = findpeaks(calibration_data, 'MinPeakHeight', 415);
 peak_values = calibration_data(peak_locations);
@@ -15,7 +24,7 @@ subplot(2, 1, 1);
 plot_calibration_peaks(calibration_data, peak_locations);
 
 % This gives us some peaks. Let's match to known corresponding wavelengths.
-known_peak_wavelengths = [702.405, 703.241]
+known_peak_wavelengths = [692.94672 702.405, 703.241]
 
 % Find a fit to convert pixels to wavelengths
 coeffs = polyfit(peak_locations, known_peak_wavelengths, 1);

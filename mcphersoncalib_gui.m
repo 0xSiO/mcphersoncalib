@@ -206,8 +206,28 @@ function manually_add_point(obj, event)
     approx_wavelength = str2double(data.field.manual_add.approx_wavelength.String);
     actual_wavelength = str2double(data.field.manual_add.actual_wavelength.String);
 
-    if ~isnan(approx_wavelength) && ~isnan(actual_wavelength)
-        data.manual_points = [data.manual_points; approx_wavelength, actual_wavelength];
+    % This only works if approx_wavelength is not NaN; we'll check if
+    % actual_wavelength is not NaN a bit later
+    if ~isnan(approx_wavelength)
+        % Upsert a point to manual points list, or remove if
+        % actual_wavelength is NaN
+        if ~isempty(data.manual_points)
+            if ~ismember(approx_wavelength, data.manual_points(:, 1)) && ~isnan(actual_wavelength)
+                % insert
+                data.manual_points = [data.manual_points; approx_wavelength, actual_wavelength];
+            else
+                existing_point_loc = ismember(data.manual_points(:, 1), approx_wavelength);
+                if ~isnan(actual_wavelength)
+                    % update
+                    data.manual_points(existing_point_loc, :) = [approx_wavelength, actual_wavelength];
+                else
+                    % remove
+                    data.manual_points(existing_point_loc, :) = [];
+                end
+            end
+        elseif ~isnan(actual_wavelength)
+            data.manual_points = [approx_wavelength, actual_wavelength];
+        end
         points = string(data.manual_points);
         data.txt.manual_points.String = "(" + points(:, 1) + ", " + points(:, 2) + ")";
         guidata(data.fig, data);

@@ -1,8 +1,8 @@
-clear;
+clear; clc; close all;
 
 % wavelength = 0.023886 * pixel + 696.6008
 % offset: +5.66
-%calibration_data = double(readSPE('1200_groove_neon_spectra/calibration_1200gv_06252019_centeredat_464.7.SPE'));
+calibration_data = double(readSPE('1200_groove_neon_spectra/calibration_1200gv_06252019_centeredat_464.7.SPE'));
 
 % wavelength = 0.023738 * pixel + 691.9743
 % offset: +5.50
@@ -21,10 +21,19 @@ peak_values = calibration_data(peak_locations);
 
 figure(2);
 subplot(2, 1, 1);
-plot_calibration_peaks(calibration_data, peak_locations);
+% Plot raw spectrometer data with given peaks
+hold on
+plot(calibration_data, 'b');
+plot(peak_locations, calibration_data(peak_locations), 'r.', 'MarkerSize', 15);
+xticks(0:20:512);
+xlim([0, 512]);
+hold off
+
+xlabel('Pixels');
+ylabel('Intensity (counts)');
 
 % This gives us some peaks. Let's match to known corresponding wavelengths.
-known_peak_wavelengths = [692.94672 702.405, 703.241]
+known_peak_wavelengths = [702.405, 703.241]
 
 % Find a fit to convert pixels to wavelengths
 coeffs = polyfit(peak_locations, known_peak_wavelengths, 1);
@@ -43,8 +52,8 @@ disp(['wavelength = ', num2str(coeffs(1)), ' * pixel + ', num2str(coeffs(2))]);
 avg_pcnt_err = mean(abs(known_peak_wavelengths - get_wavelength(peak_locations)) ./ known_peak_wavelengths .* 100)
 
 %% Example client program
-actual_data_1 = readSPE('NDTBMulti_10mW_532_600LP_30s.SPE');
-actual_data_2 = readSPE('NDTBMulti_10mW_532_747BP_30s.SPE');
+actual_data_1 = readSPE('other_data/NDTBMulti_10mW_532_600LP_30s.SPE');
+actual_data_2 = readSPE('other_data/NDTBMulti_10mW_532_747BP_30s.SPE');
 
 figure(2);
 subplot(2, 1, 1);
@@ -64,5 +73,3 @@ xticks(550:10:900);
 xlim([550, 900]);
 xlabel('Wavelength (nm)');
 ylabel('Intensity (counts)');
-
-

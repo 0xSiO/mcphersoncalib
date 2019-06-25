@@ -129,17 +129,13 @@ function adjust_fit(obj, event)
         ' peaks. Change left, right, and lower bounds of search area, if needed.'];
     data.txt.status.String = msg;
 
-    % Can make a fit if number of auto-fitted points + manually fitted
-    % points is >= number of peaks we're looking for, OR if we have 2 or
-    % more manually fitted points.
-    num_of_points = length(peak_locs) + length(data.manual_points);
-    if num_of_points >= length(possible_peaks) || length(data.manual_points) >= 2
+    % Can make a fit if number of auto-fitted points matches number of
+    % expected points, OR if we just have >= 2 manual points. If we have
+    % the wrong number of auto-fitted points and no manual points, we're
+    % out of luck.
+    if length(peak_locs) == length(possible_peaks) || ...
+        (isempty(peak_locs) && length(data.manual_points) >= 2)
         data.btn.apply_fit.Enable = 'on';
-        % TODO: Critical bug - adjusting fit to remove auto-fitted points
-        % means concatenating the below arrays is not possible, since
-        % possible_peaks includes those that were manually fitted. Maybe
-        % sort auto + manual points and match with expected peaks, or just
-        % limit the expected peaks and add missing ones manually.
         data.auto_pixel_map = [peak_locs.', possible_peaks.'];
     else
         data.btn.apply_fit.Enable = 'off';

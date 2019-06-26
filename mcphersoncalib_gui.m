@@ -202,12 +202,17 @@ function upsert_manual_points(data)
         end
     end
 
+    % Ensure auto/manual pixel maps aren't empty so union() works
     if isempty(data.auto_pixel_map)
-        % This will make the union() of auto and manual points work
         data.auto_pixel_map = [0, 0];
     end
 
+    if isempty(data.manual_pixel_map)
+        data.manual_pixel_map = [0, 0];
+    end
+
     auto_and_manual_peaks = union(data.manual_pixel_map, data.auto_pixel_map, 'rows');
+
     % Remove rows of zeros and duplicates
     auto_and_manual_peaks = auto_and_manual_peaks(any(auto_and_manual_peaks, 2),:);
     data.all_points = unique(auto_and_manual_peaks, 'stable', 'rows');
